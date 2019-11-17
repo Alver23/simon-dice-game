@@ -164,7 +164,7 @@ class Game {
         }
     }
 
-    isLost() {
+    isGameLost() {
         this.currentLifes--;
         if (this.validateLife()) {
             this.addTextToElement(this.infoElements.lifes, 'Vidas', this.currentLifes);
@@ -257,11 +257,6 @@ class Game {
                 this.nextLevel();
             }, 1000);
         })
-    }
-
-    initialLevel() {
-        this.level = 1;
-        this.addTextToElement(this.infoElements.level, 'Nivel', this.level);
     }
 
 
