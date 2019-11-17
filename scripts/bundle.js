@@ -34,7 +34,7 @@ const CONFIG = {
 const clickZound = zounds.load('./sounds/click.wav');
 
 level.innerHTML = `<strong>Nivel: </strong>${START_LEVEL}`;
-countdown.innerHTML = `<strong>Tiempo: </strong>${TIMER}`;
+countdown.innerHTML = `<strong>Tiempo: </strong>${TIMER} s`;
 lifes.innerHTML = `<strong>Vidas: </strong>${LIFES}`;
 
 
@@ -207,7 +207,7 @@ class Game {
         time = time === 0 ? 1000 : time;
         this.stopTimer();
         this.countDown = setInterval(() => {
-            this.addTextToElement(this.infoElements.countdown, 'Tiempo', this.timer);
+            this.addTextToElement(this.infoElements.countdown, 'Tiempo', `${this.timer} s`);
             if (this.timer === 0) {
                 this.stopTimer();
                 this.isGameLost();
@@ -218,7 +218,7 @@ class Game {
 
     stopTimer() {
         this.timer = this.config.timer;
-        this.addTextToElement(this.infoElements.countdown, 'Tiempo', this.timer);
+        this.addTextToElement(this.infoElements.countdown, 'Tiempo', `${this.timer} s`);
         clearInterval(this.countDown);
     }
 
