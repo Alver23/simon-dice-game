@@ -160,7 +160,7 @@ class Game {
             this.subLevel++;
             this.isSameLevel();
         } else {
-            this.isLost();
+            this.isGameLost();
         }
     }
 
@@ -210,7 +210,7 @@ class Game {
             this.addTextToElement(this.infoElements.countdown, 'Tiempo', this.timer);
             if (this.timer === 0) {
                 this.stopTimer();
-                this.isLost();
+                this.isGameLost();
             }
             this.timer--;
         }, time);
@@ -268,5 +268,5 @@ class Game {
 }
 
 function startGame() {
-    window.game = new Game(CONFIG);
+    new Game(CONFIG);
 }
