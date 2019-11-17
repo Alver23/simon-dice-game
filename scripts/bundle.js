@@ -6,9 +6,10 @@ const buttonStartGame = document.getElementById('start-game');
 const level = document.getElementById('level');
 const countdown = document.getElementById('countdown');
 const lifes = document.getElementById('lifes');
+const points = document.getElementById('points');
 const LAST_LEVEL = 10;
 const LIFES = 3;
-const TIMER = 15;
+const TIMER = 20;
 const START_LEVEL = 1;
 
 const CONFIG = {
@@ -22,6 +23,7 @@ const CONFIG = {
             level,
             countdown,
             lifes,
+            points,
         },
         colors: {
             blue,
@@ -32,11 +34,8 @@ const CONFIG = {
     },
 }
 const clickZound = zounds.load('./sounds/click.wav');
-
-level.innerHTML = `<strong>Nivel: </strong>${START_LEVEL}`;
 countdown.innerHTML = `<strong>Tiempo: </strong>${TIMER} s`;
 lifes.innerHTML = `<strong>Vidas: </strong>${LIFES}`;
-
 
 class Game {
     lifes;
@@ -46,8 +45,10 @@ class Game {
     buttonStartGame;
     infoElements;
     lastLevel;
-    constructor(config) {
+    constructor(config, player) {
         this.config = config;
+        this.playerName = player;
+        this.player = new Player();
         this.initialize();
         this.generateSequence();
         setTimeout(this.nextLevel, 500);
@@ -57,9 +58,12 @@ class Game {
         this.setConfig();
         this.nextLevel = this.nextLevel.bind(this);
         this.colorClicked = this.colorClicked.bind(this);
+        this.addEventClicks = this.addEventClicks.bind(this);
+        this.startTimer = this.startTimer.bind(this);
         this.addClassToElement(this.buttonStartGame, 'hide');
         this.addTextToElement(this.infoElements.level, 'Nivel', this.level);
         this.addTextToElement(this.infoElements.lifes, 'Vidas', this.lifes);
+        this.setPoints();
     }
 
     setConfig() {
@@ -74,6 +78,7 @@ class Game {
         const { elements: { info, colors } } = { ...this.config};
         this.infoElements = info;
         this.colors = colors;
+        this.points = 0;
     }
 
     addClassToElement(element, className) {
@@ -93,17 +98,20 @@ class Game {
     nextLevel() {
         this.subLevel = 0;
         this.iluminateSecuence();
-        this.addEventClicks();
     }
 
     iluminateSecuence() {
+        let count = 0;
         for (let i = 0; i < this.level; i++) {
             const time = 1000 * i
-            this.startTimer(time);
             setTimeout(() => {
                 this.iluminateColor(this.getColorNameByIndex(this.sequence[i]));
-            }, time)
+            }, time);
+            count = i;
         }
+        const timer = count * 1000;
+        setTimeout(this.startTimer, timer);
+        setTimeout(this.addEventClicks, timer + 1000)
     }
 
     getColorNameByIndex(index) {
@@ -177,6 +185,7 @@ class Game {
 
     isSameLevel() {
         if (this.subLevel === this.level) {
+            this.setPoints();
             this.level++;
             this.removeEventClicks();
             this.isLastLevel();
@@ -203,8 +212,7 @@ class Game {
         element.innerHTML = `<strong>${title}: </strong>${text}`;
     }
 
-    startTimer(time) {
-        time = time === 0 ? 1000 : time;
+    startTimer() {
         this.stopTimer();
         this.countDown = setInterval(() => {
             this.addTextToElement(this.infoElements.countdown, 'Tiempo', `${this.timer} s`);
@@ -213,7 +221,7 @@ class Game {
                 this.isGameLost();
             }
             this.timer--;
-        }, time);
+        }, 1000);
     }
 
     stopTimer() {
@@ -224,15 +232,20 @@ class Game {
 
     gameWon() {
         this.stopTimer();
+        this.savePlayer();
         Swal.fire({
             title:'Platzi',
             text: 'Felicitaciones, ganaste el juego :)',
             icon: 'success',
-        }).then(() => this.removeClassToElement(this.buttonStartGame, 'hide'))
+        }).then(() => {
+            this.removeClassToElement(this.buttonStartGame, 'hide')
+            this.player.lists();
+        })
     }
 
     gameLost() {
         this.stopTimer();
+        this.savePlayer();
         Swal.fire({
             title:'Platzi',
             text: 'Lo lamentamos, perdiste :(',
@@ -240,7 +253,8 @@ class Game {
         })
             .then(() => {
                 this.removeEventClicks();
-                this.removeClassToElement(this.buttonStartGame, 'hide')
+                this.removeClassToElement(this.buttonStartGame, 'hide');
+                this.player.lists()
             })
     }
 
@@ -259,9 +273,95 @@ class Game {
         })
     }
 
+    setPoints() {
+        this.points = this.level * 100;
+        this.addTextToElement(this.infoElements.points, 'Puntos', this.points);
+    }
 
+    savePlayer() {
+        this.player.save(this.playerName, this.points);
+    }
 }
 
-function startGame() {
-    new Game(CONFIG);
+class Player {
+    constructor() {
+        this.table = document.getElementById('js-game-points');
+        this.localStorage = new LocalStorage();
+    }
+
+    lists() {
+        const tbody = this.table.getElementsByTagName('tbody')[0];
+        const data = this.localStorage.getData();
+        if (data  && data.length > 0) {
+            const elements = data.map((item) => {
+                return `<tr>
+                    <td>${item.name}</td>
+                    <td>${item.points}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = elements.join(' ');
+            this.table.classList.remove('d-none')
+        }
+
+    }
+
+    save(name, points) {
+        this.localStorage.setData(name, points);
+    }
 }
+
+class LocalStorage {
+    constructor() {
+        this.item = 'best_results'
+        this.localStorage = window.localStorage;
+    }
+
+    setData(name, points) {
+        const currentData = this.getData() || [];
+        const data = [
+            ...currentData,
+            {
+                name,
+                points,
+            }
+        ];
+        this.localStorage.setItem(this.item, JSON.stringify(data));
+    }
+
+    getData() {
+        let data = this.localStorage.getItem(this.item);
+        data = JSON.parse(data);
+        if (data && data.length > 0) {
+            data.sort((a, b) => {
+                if (a.points < b.points) {
+                    return 1;
+                }
+                if (a.points > b.points) {
+                    return -1;
+                }
+                return 0;
+
+            })
+            data = data.slice(0, 3);
+        }
+        return data;
+    }
+}
+
+async function startGame() {
+    const { value: name } = await Swal.fire({
+        title: 'Ingrese su nombre',
+        input: 'text',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            if (!value) {
+                return '¡Necesitas escribir algo!'
+            }
+        }
+    });
+    name && (window.game = new Game(CONFIG, name));
+}
+
+const player = new Player();
+
+player.lists();

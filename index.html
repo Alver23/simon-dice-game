@@ -6,28 +6,57 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Simon Dice</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/style.css?v=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/responsive.css?v=2">
 </head>
 <body>
-<section class="container">
+<section class="main-container">
     <nav class="menu">
-        <div id="level" class="menu__item"></div>
+        <div id="level" class="menu__item"><strong>Nivel: 1</strong></div>
         <div id="countdown" class="menu__item"></div>
         <div id="lifes" class="menu__item"></div>
+        <div id="points" class="menu__item"><strong>Points: 0</strong> </div>
     </nav>
-    <div class="gameboard">
-        <div id="blue" class="gameboard__color bg-blue left" data-color="blue"></div>
-        <div id="violet" class="gameboard__color bg-violet right" data-color="violet"></div>
-        <div id="orange" class="gameboard__color bg-orange left" data-color="orange"></div>
-        <div id="green" class="gameboard__color bg-green right" data-color="green"></div>
+    <div class="container">
+        <div class="game pt-5">
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-8">
+                    <div class="game__board">
+                        <div id="blue" class="game__color bg-blue left" data-color="blue"></div>
+                        <div id="violet" class="game__color bg-violet right" data-color="violet"></div>
+                        <div id="orange" class="game__color bg-orange left" data-color="orange"></div>
+                        <div id="green" class="game__color bg-green right" data-color="green"></div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-12 col-lg-4">
+                    <div id="js-game-points" class="game__points d-none">
+                        <h2>Mejores Puntajes:</h2>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Puntos</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="game__start p-3">
+                        <button id="start-game" class="btn btn-primary" onclick="startGame()">Empezar a jugar!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="start-game">
-        <button id="start-game" class="btn btn-primary" onclick="startGame()">Empezar a jugar!</button>
-    </div>
+
 </section>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.3.11/dist/sweetalert2.all.min.js"></script>
 <script src="scripts/zounds.js"></script>
-<script src="scripts/bundle.js?v=1"></script>
+<script src="scripts/bundle.js?v=2"></script>
 </body>
 </html>
